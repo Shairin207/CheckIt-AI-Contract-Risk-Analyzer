@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CheckIt Premium</title>
+
+<style>
+:root{
+--primary:#6366f1;
+--secondary:#8b5cf6;
+--bg:#f8fafc;
+--card:#ffffff;
+--text:#0f172a;
+--muted:#64748b;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI,Arial,sans-serif}
+body{background:linear-gradient(135deg,#eef2ff,#f8fafc);color:var(--text);overflow-x:hidden}
+.page{display:none;min-height:100vh;padding:20px;align-items:center;justify-content:center;animation:fade .4s}
+.page.active{display:flex}
+@keyframes fade{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+.card{
+width:100%;
+max-width:900px;
+background:white;
+border-radius:30px;
+padding:30px;
+box-shadow:0 20px 50px rgba(0,0,0,.08)
+}
+
+.hero{text-align:center;padding:30px}
+.logo{
+width:90px;height:90px;border-radius:25px;
+background:linear-gradient(135deg,#6366f1,#8b5cf6);
+margin:auto;color:white;font-size:40px;
+display:flex;align-items:center;justify-content:center
+}
+
+h1{margin:15px 0}
+p{color:#64748b}
+
+.btn{
+background:linear-gradient(135deg,#6366f1,#8b5cf6);
+color:white;border:none;padding:14px 24px;
+border-radius:15px;cursor:pointer;margin-top:20px
+}
+
+.grid{display:grid;gap:15px}
+.roles{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+
+.role,.plan{
+padding:20px;
+border:2px solid #e5e7eb;
+border-radius:20px;
+cursor:pointer;
+transition:.3s
+}
+
+.role:hover,.plan:hover{transform:translateY(-3px)}
+.selected{border-color:#6366f1;background:#eef2ff}
+
+input{
+width:100%;
+padding:14px;
+margin:10px 0;
+border-radius:12px;
+border:1px solid #d1d5db
+}
+
+.upload{
+border:3px dashed #a5b4fc;
+padding:40px;
+border-radius:25px;
+text-align:center;
+margin:20px 0;
+cursor:pointer
+}
+
+.tools{display:flex;gap:10px}
+.tools button{flex:1;padding:12px;border:none;border-radius:12px}
+#dashBtn{display:none}
+.navtop{text-align:right}
+.chat{background:#eef2ff;padding:15px;border-radius:15px}
+.clause{margin:15px 0;padding:15px;background:#f8fafc;border-radius:12px}
+.gauge{font-size:72px;text-align:center;font-weight:bold;color:#6366f1}
+</style>
+</head>
+
+<body>
+
+<div class="page active" id="p1">
+<div class="card hero">
+<div class="logo">⚖️</div>
+<h1>Welcome to CheckIt</h1>
+<p>AI-Powered Employment Contract Analyzer</p>
+<button class="btn" onclick="show(2)">Get Started</button>
+</div>
+</div>
+
+<div class="page" id="p2">
+<div class="card">
+<h1>Which best describes you?</h1>
+<div class="grid roles">
+<div class="role" onclick="pickRole(this,'Individual')">👤 Individual</div>
+<div class="role" onclick="pickRole(this,'Company')">🏢 Company</div>
+<div class="role" onclick="pickRole(this,'Freelancer')">💼 Freelancer</div>
+<div class="role" onclick="pickRole(this,'Student')">🎓 Student</div>
+<div class="role" onclick="pickRole(this,'Explorer')">🔍 Explorer</div>
+</div>
+<button class="btn" onclick="plans()">Continue</button>
+</div>
+</div>
+
+<div class="page" id="p3">
+<div class="card">
+<h1>Choose a Plan</h1>
+<div id="planArea" class="grid roles"></div>
+<button class="btn" onclick="goUpload()">Continue</button>
+</div>
+</div>
+
+<div class="page" id="p4">
+<div class="card">
+<h1>Create Account</h1>
+<input id="name" placeholder="Full Name">
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
+<button class="btn" onclick="validateSignup()">Create Account</button>
+</div>
+</div>
+
+<div class="page" id="p5">
+<div class="card">
+<div class="navtop">
+<button id="dashBtn" onclick="show(6)">View Analysis →</button>
+</div>
+<h1>Upload Contract</h1>
+<div class="upload" onclick="analyze()">
+<h2>📄 Upload Contract</h2>
+<p>PDF, DOCX, DOC</p>
+</div>
+<div class="tools">
+<button>📷 Scan</button>
+<button>📸 Photo</button>
+<button>💾 Saved</button>
+</div>
+<div id="status"></div>
+</div>
+</div>
+
+<div class="page" id="p6">
+<div class="card">
+<h1>Analysis Dashboard</h1>
+<div class="gauge">72</div>
+<p style="text-align:center">Medium Risk Score</p>
+
+<div class="clause">
+<b>Non-Compete Clause</b><br>
+Restricts working with competitors for 12 months.
+</div>
+
+<div class="clause">
+<b>Termination Clause</b><br>
+Employer may terminate employment with 14-day notice.
+</div>
+
+<div class="chat">
+🤖 <b>AI Summary</b><br><br>
+Contract is standard but has some restrictive clauses.
+</div>
+
+<button class="btn" onclick="show(1)">Start Over</button>
+</div>
+</div>
+
+<script>
+let role="";
+let plan="";
+
+function show(id){
+document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+document.getElementById('p'+id).classList.add('active');
+}
+
+function pickRole(el,r){
+document.querySelectorAll('.role').forEach(x=>x.classList.remove('selected'));
+el.classList.add('selected');
+role=r;
+}
+
+const planConfig = {
+Individual:[
+{name:"Free",price:"$0",desc:"3 analyses/month"},
+{name:"Pro",price:"$19.99",desc:"Unlimited AI analysis"}],
+Freelancer:[
+{name:"Starter",price:"$9.99",desc:"Basic contract checks"},
+{name:"Pro Freelancer",price:"$24.99",desc:"Advanced AI insights"}],
+Student:[
+{name:"Student Free",price:"$0",desc:"Limited access for learning"},
+{name:"Student Pro",price:"$9.99",desc:"Full features discounted"}],
+Explorer:[
+{name:"Basic",price:"$5.99",desc:"Try AI analysis"},
+{name:"Plus",price:"$14.99",desc:"More insights + summaries"}],
+Company:[
+{name:"Business",price:"$99",desc:"Team dashboard, analytics"},
+{name:"Enterprise",price:"Custom",desc:"SSO, compliance, support"}]
+};
+
+function plans(){
+if(!role){ alert("Please select a role."); return; }
+
+let area=document.getElementById('planArea');
+let availablePlans=planConfig[role] || [];
+
+area.innerHTML=availablePlans.map(p=>`
+<div class="plan" onclick="pickPlan(this,'${p.name}')">
+<h3>${p.name}</h3>
+<div class="price">${p.price}</div>
+<p>${p.desc}</p>
+</div>`).join("");
+
+show(3);
+}
+
+function pickPlan(el,p){
+document.querySelectorAll('.plan').forEach(x=>x.classList.remove('selected'));
+el.classList.add('selected');
+plan=p;
+}
+
+function goUpload(){
+if(!plan){ alert("Please select a plan first."); return; }
+show(4);
+}
+
+function validateSignup(){
+let name=document.getElementById("name").value.trim();
+let email=document.getElementById("email").value.trim();
+let password=document.getElementById("password").value.trim();
+
+if(!name || !email || !password){
+alert("Please fill in all fields before continuing.");
+return;
+}
+
+let emailPattern=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+if(!emailPattern.test(email)){
+alert("Please enter a valid email address.");
+return;
+}
+
+if(password.length < 4){
+alert("Password must be at least 4 characters.");
+return;
+}
+
+show(5);
+}
+
+function analyze(){
+document.getElementById('status').innerHTML =
+"<p style='margin-top:15px;color:green'>✓ Contract uploaded and analysed</p>";
+document.getElementById("dashBtn").style.display="inline-block";
+}
+</script>
+
+</body>
+</html>
